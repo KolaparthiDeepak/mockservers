@@ -46,3 +46,10 @@ Task 12: complete (commit 04943a5..c7a1fd7, review clean — ✅ spec, Approved 
 - IMPORTANT (must fix before merge): OpenAPI-generated routes unreachable when basePath set. `expand.ts` emits raw OpenAPI paths; `resolve.ts` strips basePath before matching => segments must be basePath-relative. card-block-lost project.yaml has basePath:/commands but openapi paths are /commands/... => 5 of 35 compiled routes DEAD. Fix: strip basePath when appending expanded routes in compile.ts + WARN when a generated route path doesn't start with basePath. Fold in finding-12 confirm-blocked scenario test.
 - All 13 accumulated Minors => POST-MERGE follow-up PR (~1 afternoon). None block.
 - New Minors: bundle.commit reads "dev" in prod (Vercel has no .git) -> use VERCEL_GIT_COMMIT_SHA; no duplicate rule-id detection; schema/engine HttpMethod drift (OPTIONS); postinstall ||true masks compile errors as module-not-found; OPTIONS+cors:false falls to 404.
+
+## FIX WAVE + FOLD-IN (both reviewed, approved)
+- 18160ff: OpenAPI routes basePath-relative (Important, fixed) + confirm-blocked scenario test + prod commit sha
+- 65545a3: detectDeadRules no longer flags openapi:-shadowed routes (§4.4 false positive) + git-commit.ts extracted+tested + scenario matchedRuleId pin
+- FINAL STATE: 70 tests / 11 files all green. npm run check green (compile 0 warn 0 err, tsc clean, eslint clean). npm run build passes.
+- 12 accumulated Minor findings deferred to a follow-up PR (see per-task entries above).
+- Pushing main now.
