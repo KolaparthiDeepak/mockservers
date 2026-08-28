@@ -1,6 +1,23 @@
-// Replaced fully in Task 7. Stub: writes an empty bundle so `next build` succeeds pre-engine.
+import { execSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { compileMocks } from "../src/compile/compile";
 
-const stub = { builtAt: new Date().toISOString(), commit: "dev", warnings: [], projects: {} };
-writeFileSync("mocks.generated.json", JSON.stringify(stub, null, 2));
-console.log("[compile] wrote stub mocks.generated.json (Task 7 replaces this)");
+function gitCommit(): string {
+  try { return execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim(); }
+  catch { return "dev"; }
+}
+
+const mocksDir = resolve(process.cwd(), "mocks");
+const { bundle, errors, warnings } = compileMocks(mocksDir, gitCommit());
+
+for (const w of warnings) console.warn(`[compile] WARN ${w}`);
+
+if (errors.length > 0) {
+  for (const e of errors) console.error(`[compile] ERROR ${e}`);
+  console.error(`[compile] ${errors.length} error(s) — aborting build`);
+  process.exit(1);
+}
+
+writeFileSync(resolve(process.cwd(), "mocks.generated.json"), JSON.stringify(bundle, null, 2));
+console.log(`[compile] wrote mocks.generated.json — ${Object.keys(bundle.projects).length} project(s), ${warnings.length} warning(s)`);

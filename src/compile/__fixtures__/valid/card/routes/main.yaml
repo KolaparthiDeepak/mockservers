@@ -1,0 +1,13 @@
+- id: block-ok
+  request:
+    method: POST
+    path: /BLOCK_CARD/v1
+    match:
+      - jsonPath: $.cardId
+        equals: card-1
+  response:
+    status: 200
+    body: { status: BLOCKED, id: "{{request.body.cardId}}" }
+- id: block-default
+  request: { method: POST, path: /BLOCK_CARD/v1 }
+  response: { status: 200, body: { status: BLOCKED } }
