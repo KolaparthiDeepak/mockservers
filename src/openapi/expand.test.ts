@@ -20,4 +20,9 @@ describe("expandOpenApi", () => {
     expect(r.routes[0]!.response).toEqual({ status: 200, body: null });
     expect(r.warnings.join("\n")).toMatch(/no example/i);
   });
+  it("treats an explicit `example: null` as no example", async () => {
+    const r = await expandOpenApi(fx("null-example.yaml"));
+    expect(r.routes[0]!.response).toEqual({ status: 200, body: null });
+    expect(r.warnings.join("\n")).toMatch(/no example/i);
+  });
 });
