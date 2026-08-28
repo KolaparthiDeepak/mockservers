@@ -27,7 +27,7 @@ async function handle(req: Request, ctx: { params: Promise<{ slug: string[] }> }
   // Introspection: /m/<slug>/__spec — served here because Next.js excludes the
   // underscore-prefixed `__spec` folder from routing, so a dedicated route file
   // cannot exist. Handled before parseRequest.
-  if (parts.length === 2 && parts[1] === "__spec") {
+  if (parts.length === 2 && parts[1] === "__spec" && req.method === "GET") {
     return project.openApiDoc != null
       ? Response.json(project.openApiDoc)
       : json(404, { error: "no openapi spec", slug });
@@ -54,7 +54,7 @@ async function handle(req: Request, ctx: { params: Promise<{ slug: string[] }> }
     rule: result.matchedRuleId,
     status: result.status,
     matched: result.matchedRuleId !== null,
-    warns: result.warnings.length || undefined,
+    warns: result.warnings.length,
   }));
 
   const headers: Record<string, string> = { ...result.headers, ...cors };
