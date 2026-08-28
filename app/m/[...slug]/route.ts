@@ -24,6 +24,15 @@ async function handle(req: Request, ctx: { params: Promise<{ slug: string[] }> }
 
   if (!project) return json(404, { error: "unknown project", slug });
 
+  // Introspection: /m/<slug>/__spec — served here because Next.js excludes the
+  // underscore-prefixed `__spec` folder from routing, so a dedicated route file
+  // cannot exist. Handled before parseRequest.
+  if (parts.length === 2 && parts[1] === "__spec") {
+    return project.openApiDoc != null
+      ? Response.json(project.openApiDoc)
+      : json(404, { error: "no openapi spec", slug });
+  }
+
   const cors = project.defaults.cors ? CORS_HEADERS : {};
 
   if (req.method === "OPTIONS" && project.defaults.cors) {
