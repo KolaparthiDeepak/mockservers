@@ -11,7 +11,7 @@ arbitrary user JavaScript. Full design: [`docs/specs/2026-08-28-mockservers-desi
 
 ## Live
 
-<https://mockservers.dailyuze.com>
+**Live:** https://mockservers.dailyuze.com _(pending first deploy + DNS — see Deploy / DNS below)_
 
 - Viewer (read-only project/route browser): `/`
 - Health: `GET /__mock/health`
