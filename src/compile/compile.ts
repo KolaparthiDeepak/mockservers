@@ -155,9 +155,21 @@ export async function compileMocks(
         try {
           const { expandOpenApi } = await import("../openapi/expand");
           const res = await expandOpenApi(full);
+          const bp = project.basePath;
           for (const r of res.routes) {
-            if (r.path.startsWith("/__")) { errors.push(`${full}: generated route "${r.id}" hits reserved path "/__"`); continue; }
-            routes.push(r); // AFTER hand-written -> first-match-wins => hand-written overrides
+            let route = r;
+            if (bp) {
+              // resolve.ts strips basePath BEFORE matching, so stored route paths must be basePath-relative.
+              if (r.path === bp || r.path.startsWith(bp + "/")) {
+                const rel = r.path.slice(bp.length) || "/";
+                route = { ...r, path: rel, segments: compileSegments(rel) };
+              } else {
+                warnings.push(`${dirName}/openapi/${f}: generated route "${r.id}" path "${r.path}" is outside basePath "${bp}" and will not be reachable`);
+                continue;
+              }
+            }
+            if (route.path.startsWith("/__")) { errors.push(`${full}: generated route "${route.id}" hits reserved path "/__"`); continue; }
+            routes.push(route); // AFTER hand-written -> first-match-wins => hand-written overrides
           }
           for (const w of res.warnings) warnings.push(`${dirName}/openapi/${f}: ${w}`);
           mergedDoc = res.mergedDoc;

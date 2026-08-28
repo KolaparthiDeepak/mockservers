@@ -1,0 +1,5 @@
+name: Svc
+slug: svc
+basePath: /commands
+defaults:
+  notFound: { status: 404, body: { reason: UNKNOWN_ROUTE } }

@@ -15,6 +15,24 @@ describe("compileMocks", () => {
     expect(card.routes[0]!.segments).toHaveLength(2);
     expect(card.defaults.notFound.status).toBe(404);
   });
+  it("stores OpenAPI-generated routes basePath-relative", async () => {
+    const r = await compileMocks(fx("valid"), "x");
+    const gen = r.bundle.projects.card!.routes.find((x) => x.id.startsWith("openapi:"))!;
+    // spec declares /commands/status; basePath is /commands => stored path must be /status
+    expect(gen.path).toBe("/status");
+    expect(gen.path).not.toContain("/commands");
+    expect(gen.segments).toEqual([{ kind: "literal", value: "status" }]);
+  });
+  it("strips basePath from in-range OpenAPI routes and warns+skips out-of-range ones", async () => {
+    const r = await compileMocks(fx("basepath-oa"), "x");
+    expect(r.errors).toEqual([]);
+    const ids = r.bundle.projects.svc!.routes.map((x) => x.id);
+    expect(ids).toContain("openapi:getCard");
+    expect(ids).not.toContain("openapi:ping");
+    expect(r.bundle.projects.svc!.routes.find((x) => x.id === "openapi:getCard")!.path)
+      .toBe("/acropolis/GET_CARD/v1");
+    expect(r.warnings.join("\n")).toMatch(/openapi:ping.*outside basePath/i);
+  });
   it("errors when slug does not equal the directory name", async () => {
     const r = await compileMocks(fx("bad-slug"));
     expect(r.errors.join("\n")).toMatch(/slug .* does not match directory name/i);

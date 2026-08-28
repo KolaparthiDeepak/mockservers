@@ -30,6 +30,11 @@ describe("card-block-lost scenario matrix", () => {
     const r = resolve(post(`${CMD}/GET_CARD/v1`, { cardLast4: "4242" }), project);
     expect(r.body).toMatchObject({ cardId: "card-happy", last4: "4242" });
   });
+  it("confirm re-read (no cardLast4) reports the card BLOCKED", () => {
+    const r = resolve(post(`${CMD}/GET_CARD/v1`, { cardId: "card-happy" }), project);
+    expect(r.status).toBe(200);
+    expect(r.body).toMatchObject({ status: "BLOCKED" });
+  });
   it("confirm re-read of card-stale-confirm stays ACTIVE", () => {
     const r = resolve(post(`${CMD}/GET_CARD/v1`, { cardId: "card-stale-confirm" }), project);
     expect(r.body).toMatchObject({ status: "ACTIVE" });

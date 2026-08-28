@@ -1,0 +1,13 @@
+openapi: 3.0.3
+info: { title: Svc, version: 1.0.0 }
+paths:
+  /commands/acropolis/GET_CARD/v1:
+    post:
+      operationId: getCard
+      responses:
+        "200": { description: ok, content: { application/json: { example: { cardId: c1 } } } }
+  /outside/ping:
+    get:
+      operationId: ping
+      responses:
+        "200": { description: ok, content: { application/json: { example: { ok: true } } } }
