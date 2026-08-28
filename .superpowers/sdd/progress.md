@@ -40,3 +40,9 @@ Task 12: complete (commit 04943a5..c7a1fd7, review clean — ✅ spec, Approved 
   Minor (for final review): (a) README "Live" section unhedged (domain not wired yet — post-plan). (b) mock-format.md match-operator table narrower than engine (header/query actually support notEquals/contains too) — pre-existing spec-vs-code gap. (c) scripts/*.mjs not linted/typechecked (defer to harness spec).
 
 ## ALL 12 TASKS COMPLETE. Ready for final whole-branch review + push. 63 tests, npm run check green, npm run build passes.
+
+## FINAL WHOLE-BRANCH REVIEW (opus): "Merge after one fix"
+- 3 security invariants VERIFIED by code reading. 2 critical E2E paths trace clean. 63/63. Build gate precedes artifact write on every path. All commits correct personal identity.
+- IMPORTANT (must fix before merge): OpenAPI-generated routes unreachable when basePath set. `expand.ts` emits raw OpenAPI paths; `resolve.ts` strips basePath before matching => segments must be basePath-relative. card-block-lost project.yaml has basePath:/commands but openapi paths are /commands/... => 5 of 35 compiled routes DEAD. Fix: strip basePath when appending expanded routes in compile.ts + WARN when a generated route path doesn't start with basePath. Fold in finding-12 confirm-blocked scenario test.
+- All 13 accumulated Minors => POST-MERGE follow-up PR (~1 afternoon). None block.
+- New Minors: bundle.commit reads "dev" in prod (Vercel has no .git) -> use VERCEL_GIT_COMMIT_SHA; no duplicate rule-id detection; schema/engine HttpMethod drift (OPTIONS); postinstall ||true masks compile errors as module-not-found; OPTIONS+cors:false falls to 404.
