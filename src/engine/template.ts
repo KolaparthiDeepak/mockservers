@@ -44,8 +44,9 @@ function evalToken(expr: string, ctx: TemplateContext, warnings: string[]): stri
   if (expr === "now.epochMs") return String(Date.now());
   const ri = expr.match(/^randomInt\s+(-?\d+)\s+(-?\d+)$/);
   if (ri) {
-    const lo = Number(ri[1]!);
-    const hi = Number(ri[2]!);
+    let lo = Number(ri[1]!);
+    let hi = Number(ri[2]!);
+    if (lo > hi) [lo, hi] = [hi, lo];
     return String(lo + Math.floor(Math.random() * (hi - lo + 1)));
   }
   let value: unknown;
@@ -55,6 +56,10 @@ function evalToken(expr: string, ctx: TemplateContext, warnings: string[]): stri
   else if (expr.startsWith("request.header.")) value = ctx.header[expr.slice("request.header.".length).toLowerCase()];
   if (value === undefined || value === null) {
     warnings.push(`template value not found: {{${expr}}}`);
+    return "";
+  }
+  if (typeof value === "function") {
+    warnings.push(`template value not usable: {{${expr}}}`);
     return "";
   }
   return typeof value === "string" ? value : JSON.stringify(value);
@@ -68,7 +73,7 @@ export function renderDeep(value: unknown, ctx: TemplateContext, warnings: strin
   if (typeof value === "string") return renderTemplate(value, ctx, warnings);
   if (Array.isArray(value)) return value.map((v) => renderDeep(v, ctx, warnings));
   if (value && typeof value === "object") {
-    const out: Record<string, unknown> = {};
+    const out: Record<string, unknown> = Object.create(null);
     for (const [k, v] of Object.entries(value)) out[k] = renderDeep(v, ctx, warnings);
     return out;
   }
