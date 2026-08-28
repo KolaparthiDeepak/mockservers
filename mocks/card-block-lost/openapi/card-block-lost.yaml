@@ -1,0 +1,283 @@
+openapi: 3.0.3
+info:
+  title: Card Block (Lost Card) — command mock contract
+  description: >
+    Mock contract for the 5 command-executor commands used by carb-block-lost.bpmn
+    (machine acropolis-card-mgmt, commandVersion v1). Not the real command-executor
+    API shape — command-executor's actual transport is opaque to this repo (invoked via
+    an internal client, see runtime/.../delegate/CommandTaskDelegate.java). This spec exists
+    to drive a local mock (Prism, WireMock-from-OpenAPI, etc.) covering every branch of the
+    BPMN. Path segments are {machineCode}/{commandCode}/{commandVersion}; each response
+    example name matches the corresponding row in card-block-lost-api-docs.md.
+  version: 1.0.0
+servers:
+  - url: http://localhost:9090
+    description: local command-executor mock
+
+paths:
+  /commands/acropolis-card-mgmt/VERIFY_CUSTOMER/v1:
+    post:
+      operationId: verifyCustomer
+      summary: Verify the caller's identity (task VerifyCaller, outputVariable verifyCaller)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId]
+              properties:
+                customerId: { type: string }
+                contactChannel: { type: string, enum: [SMS, EMAIL] }
+                challengeResponse: { type: string }
+      responses:
+        "200":
+          description: Verification attempted (check body.verified)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verified: { type: boolean }
+                  reason: { type: string }
+                  riskScore: { type: integer }
+              examples:
+                verified:
+                  value: { verified: true, riskScore: 12 }
+                wrongChallengeResponse:
+                  value: { verified: false, reason: CHALLENGE_MISMATCH }
+                customerNotFound:
+                  value: { verified: false, reason: CUSTOMER_NOT_FOUND }
+        "401":
+          description: Unauthorized caller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verified: { type: boolean }
+                  reason: { type: string }
+              examples:
+                unauthorized:
+                  value: { verified: false, reason: UNAUTHORIZED }
+        "500":
+          description: Verification service down
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verified: { type: boolean }
+                  reason: { type: string }
+              examples:
+                serviceError:
+                  value: { verified: false, reason: VERIFICATION_SERVICE_ERROR }
+
+  /commands/acropolis-card-mgmt/GET_CARD/v1:
+    post:
+      operationId: getCard
+      summary: >
+        Look up a card. Called twice by the BPMN: LocateCard (outputVariable cardLookup) and
+        ConfirmCardBlocked (outputVariable cardConfirm) — same contract, second call re-reads
+        post-block status.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customerId: { type: string }
+                cardLast4: { type: string, minLength: 4, maxLength: 4 }
+                cardId: { type: string }
+      responses:
+        "200":
+          description: Card found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cardId: { type: string }
+                  status: { type: string, enum: [ACTIVE, BLOCKED, CLOSED, REPLACED] }
+                  last4: { type: string }
+              examples:
+                foundActive:
+                  summary: LocateCard success
+                  value: { cardId: card_789, status: ACTIVE, last4: "4242" }
+                confirmsBlocked:
+                  summary: ConfirmCardBlocked success
+                  value: { cardId: card_789, status: BLOCKED }
+                staleReadStillActive:
+                  summary: ConfirmCardBlocked stale-read case
+                  value: { cardId: card_789, status: ACTIVE }
+        "404":
+          description: Card not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reason: { type: string }
+              examples:
+                notFound:
+                  value: { reason: CARD_NOT_FOUND }
+        "500":
+          description: Lookup service down
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reason: { type: string }
+              examples:
+                serviceError:
+                  value: { reason: CARD_SERVICE_ERROR }
+
+  /commands/acropolis-card-mgmt/CHECK_CARD_ELIGIBILITY/v1:
+    post:
+      operationId: checkCardEligibility
+      summary: Check whether a card is eligible to block (task CheckEligibility, outputVariable eligibility)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cardId]
+              properties:
+                cardId: { type: string }
+      responses:
+        "200":
+          description: Eligibility check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  eligible: { type: boolean }
+                  reason: { type: string }
+              examples:
+                eligible:
+                  value: { eligible: true }
+                alreadyBlocked:
+                  value: { eligible: false, reason: ALREADY_BLOCKED }
+                cardClosed:
+                  value: { eligible: false, reason: CARD_CLOSED }
+                cardReplaced:
+                  value: { eligible: false, reason: CARD_REPLACED }
+        "500":
+          description: Eligibility service down
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  eligible: { type: boolean }
+                  reason: { type: string }
+              examples:
+                serviceError:
+                  value: { eligible: false, reason: ELIGIBILITY_SERVICE_ERROR }
+
+  /commands/acropolis-card-mgmt/BLOCK_CARD/v1:
+    post:
+      operationId: blockCard
+      summary: Block a card (task BlockCard, outputVariable blockResult)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cardId, reason]
+              properties:
+                cardId: { type: string }
+                reason: { type: string, enum: [LOST_OR_STOLEN] }
+                initiatedBy: { type: string }
+      responses:
+        "200":
+          description: Block attempted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [BLOCKED, FAILED] }
+                  blockId: { type: string }
+                  blockedAt: { type: string, format: date-time }
+              examples:
+                blocked:
+                  value: { status: BLOCKED, blockId: blk_123, blockedAt: "2026-08-25T10:00:00Z" }
+        "409":
+          description: Already blocked (race)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+                  reason: { type: string }
+              examples:
+                alreadyBlocked:
+                  value: { status: FAILED, reason: ALREADY_BLOCKED }
+        "500":
+          description: Block failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+                  reason: { type: string }
+              examples:
+                blockFailed:
+                  value: { status: FAILED, reason: BLOCK_FAILED }
+
+  /commands/acropolis-card-mgmt/NOTIFY_CUSTOMER/v1:
+    post:
+      operationId: notifyCustomer
+      summary: Notify the customer the card was blocked (task NotifyCustomer, outputVariable notifyResult)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId, cardId]
+              properties:
+                customerId: { type: string }
+                cardId: { type: string }
+                channels:
+                  type: array
+                  items: { type: string, enum: [SMS, EMAIL, IN_APP] }
+                templateCode: { type: string }
+      responses:
+        "200":
+          description: Notification attempted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sent: { type: boolean }
+                  channels:
+                    type: array
+                    items: { type: string }
+                  notificationId: { type: string }
+              examples:
+                sentBothChannels:
+                  value: { sent: true, channels: [SMS, IN_APP], notificationId: ntf_456 }
+                sentOneChannelOnly:
+                  value: { sent: true, channels: [SMS], notificationId: ntf_456 }
+        "500":
+          description: Notify failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sent: { type: boolean }
+                  reason: { type: string }
+              examples:
+                notifyFailed:
+                  value: { sent: false, reason: NOTIFY_SERVICE_ERROR }

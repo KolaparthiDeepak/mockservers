@@ -1,0 +1,9 @@
+name: Card Block (Lost Card)
+slug: card-block-lost
+basePath: /commands
+defaults:
+  delayMs: 0
+  cors: true
+  notFound:
+    status: 404
+    body: { reason: UNKNOWN_ROUTE }

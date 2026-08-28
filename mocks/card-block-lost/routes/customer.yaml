@@ -1,0 +1,31 @@
+- id: verify-customer-bad-challenge
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/VERIFY_CUSTOMER/v1
+    match: [{ jsonPath: $.customerId, equals: cust-bad-challenge }]
+  response: { status: 200, body: { verified: false, reason: CHALLENGE_MISMATCH } }
+
+- id: verify-customer-unknown
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/VERIFY_CUSTOMER/v1
+    match: [{ jsonPath: $.customerId, equals: cust-unknown }]
+  response: { status: 200, body: { verified: false, reason: CUSTOMER_NOT_FOUND } }
+
+- id: verify-customer-unauth
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/VERIFY_CUSTOMER/v1
+    match: [{ jsonPath: $.customerId, equals: cust-unauth }]
+  response: { status: 401, body: { verified: false, reason: UNAUTHORIZED } }
+
+- id: verify-customer-service-down
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/VERIFY_CUSTOMER/v1
+    match: [{ jsonPath: $.customerId, equals: cust-verify-down }]
+  response: { status: 500, body: { verified: false, reason: VERIFICATION_SERVICE_ERROR } }
+
+- id: verify-customer-default
+  request: { method: POST, path: /acropolis-card-mgmt/VERIFY_CUSTOMER/v1 }
+  response: { status: 200, body: { verified: true, riskScore: 12 } }
