@@ -34,6 +34,7 @@ describe("card-block-lost scenario matrix", () => {
     const r = resolve(post(`${CMD}/GET_CARD/v1`, { cardId: "card-happy" }), project);
     expect(r.status).toBe(200);
     expect(r.body).toMatchObject({ status: "BLOCKED" });
+    expect(r.matchedRuleId).toBe("confirm-card-blocked");
   });
   it("confirm re-read of card-stale-confirm stays ACTIVE", () => {
     const r = resolve(post(`${CMD}/GET_CARD/v1`, { cardId: "card-stale-confirm" }), project);

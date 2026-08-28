@@ -58,6 +58,15 @@ describe("compileMocks", () => {
     expect(r.errors).toEqual([]);
     expect(r.warnings.join("\n")).toMatch(/unreachable/i);
   });
+  it("does not warn when a hand-written rule shadows an OpenAPI-generated route (intended override)", async () => {
+    const r = await compileMocks(fx("valid"), "x", {
+      // valid fixture's openapi declares GET /commands/status => openapi:cardStatus at /status
+      "card/routes/override.yaml":
+        "- id: status-override\n  request: { method: GET, path: /status }\n  response: { status: 200, body: { up: false } }\n",
+    });
+    expect(r.errors).toEqual([]);
+    expect(r.warnings.join("\n")).not.toMatch(/"openapi:cardStatus": unreachable/);
+  });
   it("hand-written rules come before OpenAPI-generated ones", async () => {
     const r = await compileMocks(fx("valid"), "x");
     const ids = r.bundle.projects.card!.routes.map((x) => x.id);

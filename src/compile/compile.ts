@@ -58,7 +58,9 @@ function detectDeadRules(routes: Route[], warnings: string[]): void {
   for (const r of routes) {
     const key = `${r.method} ${r.path}`;
     if (!r.match || r.match.length === 0) {
-      if (seenUnconditional.has(key)) {
+      if (seenUnconditional.has(key) && !r.id.startsWith("openapi:")) {
+        // A hand-written rule intentionally overriding a generated openapi: route
+        // for the same method+path is the intended pattern (design spec §4.4).
         warnings.push(`rule "${r.id}": unreachable — an earlier rule already matches all "${key}"`);
       }
       seenUnconditional.add(key);
