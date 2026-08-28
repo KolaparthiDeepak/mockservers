@@ -16,3 +16,5 @@ Task 1: complete (commits e9c0711..2af2cda, review clean — ✅ spec, Approved 
 - T1: eslint/vitest don't ignore `out/` or `.vercel/` (negligible; add if `next export` is ever used).
 Task 2: complete (commits 2af2cda..96841e8, review clean — ✅ spec, Approved quality)
   Minor (for final review): catchall `**` placement not enforced by matcher (compileSegments accepts non-terminal `**`, matcher silently never matches it) — Task 6 schema should reject `**` that isn't last. Coverage gaps: param+catchall combo, empty path.
+Task 3: complete (commits 96841e8..d42c33b, review clean — ✅ spec, Approved quality)
+  Minor (for final review): (a) `notEquals`/`contains`/`regex` against an absent target return false (fail-closed) — pair with `exists:false` to assert absence; note in mock-format docs (Task 12). (b) coverage gaps: asString JSON.stringify branch, contains/regex on header/query, allMatch with [], resolveJsonPath null body.
