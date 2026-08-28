@@ -67,6 +67,19 @@ describe("compileMocks", () => {
     expect(r.errors).toEqual([]);
     expect(r.warnings.join("\n")).not.toMatch(/"openapi:cardStatus": unreachable/);
   });
+  it("reports a duplicate rule id as an error", async () => {
+    const r = await compileMocks(fx("valid"), "x", {
+      "card/routes/dupe.yaml":
+        "- id: same\n  request: { method: GET, path: /a }\n  response: { status: 200 }\n" +
+        "- id: same\n  request: { method: GET, path: /b }\n  response: { status: 200 }\n",
+    });
+    expect(r.errors.join("\n")).toMatch(/duplicate rule id "same" in project "card"/);
+  });
+  it("records an error (and does not throw) on an invalid OpenAPI spec", async () => {
+    const r = await compileMocks(fx("bad-openapi"), "x");
+    expect(r.errors.length).toBeGreaterThan(0);
+    expect(r.errors.join("\n")).toMatch(/api\.yaml/);
+  });
   it("hand-written rules come before OpenAPI-generated ones", async () => {
     const r = await compileMocks(fx("valid"), "x");
     const ids = r.bundle.projects.card!.routes.map((x) => x.id);

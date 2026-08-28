@@ -1,0 +1,12 @@
+openapi: 3.0.3
+info: { title: X, version: 1.0.0 }
+paths:
+  /thing:
+    get:
+      operationId: getThing
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              example: null
