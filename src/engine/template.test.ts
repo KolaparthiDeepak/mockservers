@@ -47,6 +47,17 @@ describe("renderTemplate", () => {
     expect(renderTemplate("[{{request.body.missing}}]", ctx, w)).toBe("[]");
     expect(w).toHaveLength(1);
   });
+  it("function-valued resolution renders empty and warns", () => {
+    const w: string[] = [];
+    expect(renderTemplate("[{{request.body.constructor}}]", ctx, w)).toBe("[]");
+    expect(w).toEqual(["template value not usable: {{request.body.constructor}}"]);
+  });
+  it("randomInt swaps reversed bounds", () => {
+    const w: string[] = [];
+    const n = Number(renderTemplate("{{randomInt 5 1}}", ctx, w));
+    expect(n).toBeGreaterThanOrEqual(1);
+    expect(n).toBeLessThanOrEqual(5);
+  });
 });
 
 describe("renderDeep", () => {
