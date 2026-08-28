@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.vercel/
+out/
+next-env.d.ts
+mocks.generated.json
+*.tsbuildinfo
+.env*
+!.env.example
+.DS_Store
+.idea/
