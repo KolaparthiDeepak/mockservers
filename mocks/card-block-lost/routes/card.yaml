@@ -1,84 +1,175 @@
 # ---- GET_CARD: LocateCard (cardLast4 present) ----
 - id: locate-card-not-found
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "0001" }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "0001" }]
   response: { status: 404, body: { reason: CARD_NOT_FOUND } }
+
 - id: locate-card-service-down
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "0002" }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "0002" }]
   response: { status: 500, body: { reason: CARD_SERVICE_ERROR } }
+
 - id: locate-card-already-blocked
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "1001" }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "1001" }]
   response: { status: 200, body: { cardId: card-already-blocked, status: ACTIVE, last4: "1001" } }
+
 - id: locate-card-closed
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "1002" }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "1002" }]
   response: { status: 200, body: { cardId: card-closed, status: ACTIVE, last4: "1002" } }
+
 - id: locate-card-replaced
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "1003" }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "1003" }]
   response: { status: 200, body: { cardId: card-replaced, status: ACTIVE, last4: "1003" } }
+
 - id: locate-card-elig-svc-down
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "1004" }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "1004" }]
   response: { status: 200, body: { cardId: card-elig-svc-down, status: ACTIVE, last4: "1004" } }
+
 - id: locate-card-block-race
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "2001" }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "2001" }]
   response: { status: 200, body: { cardId: card-block-race, status: ACTIVE, last4: "2001" } }
+
 - id: locate-card-block-fail
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "2002" }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "2002" }]
   response: { status: 200, body: { cardId: card-block-fail, status: ACTIVE, last4: "2002" } }
+
 - id: locate-card-stale-confirm
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "3001" }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "3001" }]
   response: { status: 200, body: { cardId: card-stale-confirm, status: ACTIVE, last4: "3001" } }
+
 - id: locate-card-notify-fail
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "4001" }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "4001" }]
   response: { status: 200, body: { cardId: card-notify-fail, status: ACTIVE, last4: "4001" } }
+
 - id: locate-card-notify-queued
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "4002" }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardLast4, exists: true }, { jsonPath: $.cardLast4, equals: "4002" }]
   response: { status: 200, body: { cardId: card-notify-queued, status: ACTIVE, last4: "4002" } }
+
 - id: locate-card-happy
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardLast4, exists: true }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardLast4, exists: true }]
   response: { status: 200, body: { cardId: card-happy, status: ACTIVE, last4: "{{request.body.cardLast4}}" } }
 
 # ---- GET_CARD: ConfirmCardBlocked (cardLast4 absent) ----
 - id: confirm-card-stale
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1, match: [{ jsonPath: $.cardId, equals: card-stale-confirm }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
+    match: [{ jsonPath: $.cardId, equals: card-stale-confirm }]
   response: { status: 200, body: { cardId: card-stale-confirm, status: ACTIVE } }
+
 - id: confirm-card-blocked
-  request: { method: POST, path: /acropolis-card-mgmt/GET_CARD/v1 }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/GET_CARD/v1
   response: { status: 200, body: { cardId: "{{request.body.cardId}}", status: BLOCKED } }
 
 # ---- CHECK_CARD_ELIGIBILITY ----
 - id: eligibility-already-blocked
-  request: { method: POST, path: /acropolis-card-mgmt/CHECK_CARD_ELIGIBILITY/v1, match: [{ jsonPath: $.cardId, equals: card-already-blocked }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/CHECK_CARD_ELIGIBILITY/v1
+    match: [{ jsonPath: $.cardId, equals: card-already-blocked }]
   response: { status: 200, body: { eligible: false, reason: ALREADY_BLOCKED } }
+
 - id: eligibility-card-closed
-  request: { method: POST, path: /acropolis-card-mgmt/CHECK_CARD_ELIGIBILITY/v1, match: [{ jsonPath: $.cardId, equals: card-closed }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/CHECK_CARD_ELIGIBILITY/v1
+    match: [{ jsonPath: $.cardId, equals: card-closed }]
   response: { status: 200, body: { eligible: false, reason: CARD_CLOSED } }
+
 - id: eligibility-card-replaced
-  request: { method: POST, path: /acropolis-card-mgmt/CHECK_CARD_ELIGIBILITY/v1, match: [{ jsonPath: $.cardId, equals: card-replaced }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/CHECK_CARD_ELIGIBILITY/v1
+    match: [{ jsonPath: $.cardId, equals: card-replaced }]
   response: { status: 200, body: { eligible: false, reason: CARD_REPLACED } }
+
 - id: eligibility-svc-down
-  request: { method: POST, path: /acropolis-card-mgmt/CHECK_CARD_ELIGIBILITY/v1, match: [{ jsonPath: $.cardId, equals: card-elig-svc-down }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/CHECK_CARD_ELIGIBILITY/v1
+    match: [{ jsonPath: $.cardId, equals: card-elig-svc-down }]
   response: { status: 500, body: { eligible: false, reason: ELIGIBILITY_SERVICE_ERROR } }
+
 - id: eligibility-default
-  request: { method: POST, path: /acropolis-card-mgmt/CHECK_CARD_ELIGIBILITY/v1 }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/CHECK_CARD_ELIGIBILITY/v1
   response: { status: 200, body: { eligible: true } }
 
 # ---- BLOCK_CARD ----
 - id: block-race
-  request: { method: POST, path: /acropolis-card-mgmt/BLOCK_CARD/v1, match: [{ jsonPath: $.cardId, equals: card-block-race }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/BLOCK_CARD/v1
+    match: [{ jsonPath: $.cardId, equals: card-block-race }]
   response: { status: 409, body: { status: FAILED, reason: ALREADY_BLOCKED } }
+
 - id: block-fail
-  request: { method: POST, path: /acropolis-card-mgmt/BLOCK_CARD/v1, match: [{ jsonPath: $.cardId, equals: card-block-fail }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/BLOCK_CARD/v1
+    match: [{ jsonPath: $.cardId, equals: card-block-fail }]
   response: { status: 500, body: { status: FAILED, reason: BLOCK_FAILED } }
+
 - id: block-default
-  request: { method: POST, path: /acropolis-card-mgmt/BLOCK_CARD/v1 }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/BLOCK_CARD/v1
   response: { status: 200, body: { status: BLOCKED, blockId: "blk_{{request.body.cardId}}", blockedAt: "{{now}}" } }
 
 # ---- NOTIFY_CUSTOMER ----
 - id: notify-fail
-  request: { method: POST, path: /acropolis-card-mgmt/NOTIFY_CUSTOMER/v1, match: [{ jsonPath: $.cardId, equals: card-notify-fail }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/NOTIFY_CUSTOMER/v1
+    match: [{ jsonPath: $.cardId, equals: card-notify-fail }]
   response: { status: 500, body: { sent: false, reason: NOTIFY_SERVICE_ERROR } }
+
 - id: notify-queued
-  request: { method: POST, path: /acropolis-card-mgmt/NOTIFY_CUSTOMER/v1, match: [{ jsonPath: $.cardId, equals: card-notify-queued }] }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/NOTIFY_CUSTOMER/v1
+    match: [{ jsonPath: $.cardId, equals: card-notify-queued }]
   response: { status: 200, body: { sent: true, status: QUEUED, notificationId: "ntf_{{request.body.cardId}}" } }
+
 - id: notify-default
-  request: { method: POST, path: /acropolis-card-mgmt/NOTIFY_CUSTOMER/v1 }
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/NOTIFY_CUSTOMER/v1
   response: { status: 200, body: { sent: true, channels: [SMS, IN_APP], notificationId: "ntf_{{request.body.cardId}}" } }
