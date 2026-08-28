@@ -9,7 +9,7 @@ function gitCommit(): string {
 }
 
 const mocksDir = resolve(process.cwd(), "mocks");
-const { bundle, errors, warnings } = compileMocks(mocksDir, gitCommit());
+const { bundle, errors, warnings } = await compileMocks(mocksDir, gitCommit());
 
 for (const w of warnings) console.warn(`[compile] WARN ${w}`);
 

@@ -66,11 +66,11 @@ function detectDeadRules(routes: Route[], warnings: string[]): void {
   }
 }
 
-export function compileMocks(
+export async function compileMocks(
   mocksDir: string,
   commit = "dev",
   overlayFiles: Record<string, string> = {},
-): CompileResult {
+): Promise<CompileResult> {
   const errors: string[] = [];
   const warnings: string[] = [];
   const projects: Record<string, ProjectConfig> = {};
@@ -144,6 +144,29 @@ export function compileMocks(
       }
     }
 
+    let mergedDoc: unknown;
+    try {
+      const openapiDir = join(dir, "openapi");
+      const oaFiles = readdirSync(openapiDir)
+        .filter((f) => f.endsWith(".yaml") || f.endsWith(".yml") || f.endsWith(".json"))
+        .sort();
+      for (const f of oaFiles) {
+        const full = join(openapiDir, f);
+        try {
+          const { expandOpenApi } = await import("../openapi/expand");
+          const res = await expandOpenApi(full);
+          for (const r of res.routes) {
+            if (r.path.startsWith("/__")) { errors.push(`${full}: generated route "${r.id}" hits reserved path "/__"`); continue; }
+            routes.push(r); // AFTER hand-written -> first-match-wins => hand-written overrides
+          }
+          for (const w of res.warnings) warnings.push(`${dirName}/openapi/${f}: ${w}`);
+          mergedDoc = res.mergedDoc;
+        } catch (e) {
+          errors.push(`${full}: ${(e as Error).message}`);
+        }
+      }
+    } catch { /* no openapi/ dir */ }
+
     detectDeadRules(routes, warnings);
 
     projects[project.slug] = {
@@ -156,6 +179,7 @@ export function compileMocks(
         notFound: project.defaults?.notFound ?? DEFAULT_NOT_FOUND,
       },
       routes,
+      openApiDoc: mergedDoc,
     };
   }
 
