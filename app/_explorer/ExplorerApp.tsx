@@ -1,0 +1,34 @@
+"use client";
+import { useState } from "react";
+import type { ViewModel } from "@/src/viewer/model";
+import { Explorer } from "./Explorer";
+import { SlabList } from "./SlabList";
+
+export default function ExplorerApp({ model }: { model: ViewModel }) {
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const project = model.projects.find((p) => p.slug === selectedSlug) ?? null;
+
+  return (
+    <div className="mx-app">
+      {project ? (
+        <Explorer
+          project={project}
+          projects={model.projects}
+          onPickProject={setSelectedSlug}
+          onBackToOrbit={() => setSelectedSlug(null)}
+        />
+      ) : (
+        <>
+          <div className="mx-topbar">
+            <span className="mx-wordmark">MOCKSERVERS</span>
+            <span className="mx-build">
+              build {model.build.commit} · {model.projects.length} project(s)
+              {model.build.warnings.length > 0 && ` · ${model.build.warnings.length} warning(s)`}
+            </span>
+          </div>
+          <SlabList projects={model.projects} onSelect={setSelectedSlug} />
+        </>
+      )}
+    </div>
+  );
+}
