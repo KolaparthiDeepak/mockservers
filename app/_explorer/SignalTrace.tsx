@@ -30,7 +30,7 @@ export function SignalTrace({
       window.removeEventListener("resize", recompute);
       window.removeEventListener("scroll", recompute, true);
     };
-  }, [fromEl, toEl]);
+  }, [fromEl, toEl, pulseKey]);
 
   if (!d) return null;
 

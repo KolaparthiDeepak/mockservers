@@ -29,6 +29,15 @@ describe("classifyResult", () => {
     expect(classifyResult(h({}), 200, JSON.stringify({ reason: "OTHER" }), sel))
       .toEqual({ kind: "unknown" });
   });
+
+  it("unknown when status matches expected but the body differs", () => {
+    expect(
+      classifyResult(new Headers({}), 404, JSON.stringify({ reason: "OTHER" }), {
+        id: "not-found",
+        expected: { status: 404, body: { reason: "CARD_NOT_FOUND" } },
+      }),
+    ).toEqual({ kind: "unknown" });
+  });
 });
 
 describe("looseBodyMatch", () => {
@@ -41,5 +50,9 @@ describe("looseBodyMatch", () => {
   });
   it("allows the response to carry extra keys", () => {
     expect(looseBodyMatch({ a: 1 }, { a: 1, b: 2 })).toBe(true);
+  });
+  it("compares arrays element-wise", () => {
+    expect(looseBodyMatch([1, 2], [1, 2])).toBe(true);
+    expect(looseBodyMatch([1, 2], [1, 3])).toBe(false);
   });
 });

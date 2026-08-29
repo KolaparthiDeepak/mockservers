@@ -17,7 +17,7 @@ export function EndpointList({
 }) {
   return (
     <div role="listbox" aria-label="Endpoints">
-      {endpoints.map((e) => (
+      {endpoints.map((e, i) => (
         <div
           key={e.key}
           role="option"
@@ -29,6 +29,15 @@ export function EndpointList({
             if (ev.key === "Enter" || ev.key === " ") {
               ev.preventDefault();
               onSelect(e.key);
+            } else if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
+              ev.preventDefault();
+              const next = endpoints[i + (ev.key === "ArrowDown" ? 1 : -1)];
+              if (!next) return;
+              onSelect(next.key);
+              const sib = ev.currentTarget.parentElement?.children[
+                i + (ev.key === "ArrowDown" ? 1 : -1)
+              ] as HTMLElement | undefined;
+              sib?.focus();
             }
           }}
         >

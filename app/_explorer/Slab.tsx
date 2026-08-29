@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { RoundedBox, Text } from "@react-three/drei";
 import * as THREE from "three";
@@ -19,6 +19,8 @@ export function Slab({
   const group = useRef<THREE.Group>(null);
   const [hover, setHover] = useState(false);
   const scratch = useRef(new THREE.Vector3());
+
+  useEffect(() => () => { document.body.style.cursor = "auto"; }, []);
 
   useFrame((_, dt) => {
     if (!group.current) return;

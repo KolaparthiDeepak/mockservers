@@ -15,7 +15,7 @@ export function CaseList({
 }) {
   return (
     <div role="listbox" aria-label="Cases">
-      {cases.map((c) => (
+      {cases.map((c, i) => (
         <div
           key={c.id}
           role="option"
@@ -28,6 +28,15 @@ export function CaseList({
             if (ev.key === "Enter" || ev.key === " ") {
               ev.preventDefault();
               onSelect(c.id);
+            } else if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
+              ev.preventDefault();
+              const next = cases[i + (ev.key === "ArrowDown" ? 1 : -1)];
+              if (!next) return;
+              onSelect(next.id);
+              const sib = ev.currentTarget.parentElement?.children[
+                i + (ev.key === "ArrowDown" ? 1 : -1)
+              ] as HTMLElement | undefined;
+              sib?.focus();
             }
           }}
         >
