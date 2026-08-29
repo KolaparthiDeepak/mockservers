@@ -36,7 +36,10 @@ export interface CaseVM {
 interface OaMediaType {
   example?: unknown;
   examples?: Record<string, { value?: unknown }>;
-  schema?: { properties?: Record<string, { enum?: unknown[]; example?: unknown }> };
+  schema?: {
+    required?: unknown;
+    properties?: Record<string, { enum?: unknown[]; example?: unknown }>;
+  };
 }
 interface OaOperation {
   summary?: string;
@@ -73,6 +76,13 @@ function schemaProps(mt: OaMediaType | undefined): Record<string, SchemaProp> | 
   return out;
 }
 
+function requiredProps(mt: OaMediaType | undefined): string[] | undefined {
+  const req = mt?.schema?.required;
+  if (!Array.isArray(req)) return undefined;
+  const names = req.filter((x): x is string => typeof x === "string");
+  return names.length > 0 ? names : undefined;
+}
+
 function groupByEndpoint(routes: Route[]): Map<string, Route[]> {
   const groups = new Map<string, Route[]>();
   for (const r of routes) {
@@ -97,6 +107,7 @@ function projectVM(p: ProjectConfig): ProjectVM {
     const mt = jsonMediaType(op);
     const example = requestExample(mt);
     const props = schemaProps(mt);
+    const required = requiredProps(mt);
 
     const cases: CaseVM[] = routes.map((r) => {
       const match = (r.match ?? []) as MatchCondition[];
@@ -106,7 +117,14 @@ function projectVM(p: ProjectConfig): ProjectVM {
         isOpenApiGenerated: r.id.startsWith("openapi:"),
         match,
         expected: { status: r.response.status, body: r.response.body, headers: r.response.headers },
-        request: synthesizeRequest({ method, runUrl, match, requestExample: example, requestSchemaProps: props }),
+        request: synthesizeRequest({
+          method,
+          runUrl,
+          match,
+          requestExample: example,
+          requestSchemaProps: props,
+          requiredProps: required,
+        }),
       };
     });
 

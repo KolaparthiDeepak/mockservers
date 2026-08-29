@@ -20,6 +20,9 @@ export interface SynthInput {
   match: MatchCondition[];
   requestExample?: Record<string, unknown>;
   requestSchemaProps?: Record<string, SchemaProp>;
+  /** Top-level property names the request schema marks `required`; filled with a
+   *  placeholder / enum / example value if still absent after the example + match overlay. */
+  requiredProps?: string[];
 }
 
 export interface RequestDraft {
@@ -122,6 +125,15 @@ export function synthesizeRequest(input: SynthInput): RequestDraft {
       if (c.equals !== undefined) query.set(c.query, c.equals);
       else if (c.contains !== undefined) query.set(c.query, c.contains);
       else notes.push(`adjust: query ${c.query} ${describeOp(c)}`);
+    }
+  }
+
+  // Fill any still-absent required schema property so the body satisfies the contract.
+  if (hasBody) {
+    for (const k of input.requiredProps ?? []) {
+      if (hasPath(body, k)) continue;
+      const prop = input.requestSchemaProps?.[k];
+      body[k] = prop?.enum?.[0] ?? prop?.example ?? PLACEHOLDER;
     }
   }
 

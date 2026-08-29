@@ -96,6 +96,16 @@ body {
 .mx-row[aria-selected="true"] { border-left-color: var(--trace); color: var(--ink); font-weight: 500; }
 .mx-row--openapi { opacity: 0.55; font-style: italic; }
 
+/* two-line endpoint row */
+.mx-row--two { height: auto; min-height: 46px; padding-top: 0.4rem; padding-bottom: 0.4rem; align-items: flex-start; }
+.mx-ep { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.mx-ep-title {
+  font-family: var(--font-sans); font-size: 0.8125rem; line-height: 1.35;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+.mx-ep-sub { color: var(--ink-dim); font-size: 0.6875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mx-ep-path { opacity: 0.8; }
+
 .mx-status { font-variant-numeric: tabular-nums; }
 .mx-status--2 { color: var(--pass); }
 .mx-status--4 { color: var(--divert); }
@@ -120,21 +130,27 @@ textarea.mx-code { min-height: 4rem; }
 /* ---- signal trace ---- */
 .mx-trace-layer { position: fixed; inset: 0; pointer-events: none; z-index: 5; width: 100%; height: 100%; }
 
-/* ---- monolith scene ---- */
-.mx-scene { position: absolute; inset: 0; z-index: 0; }
-.mx-scene--backdrop { opacity: 0.15; transition: opacity 0.6s ease; pointer-events: none; }
-.mx-app > :not(.mx-scene, .mx-trace-layer, .mx-slablist--overlay) { position: relative; z-index: 1; }
-
-/* ---- slab list fallback / orbit-phase keyboard list ---- */
-.mx-slablist { display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 2rem; align-content: flex-start; }
-.mx-slab-card {
-  width: 180px; min-height: 220px; background: var(--panel); border: 1px solid var(--rule);
-  border-radius: 3px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column;
-  justify-content: space-between; color: var(--ink); text-align: left; font: inherit;
+/* ---- landing: project picker ---- */
+.mx-landing {
+  flex: 1; min-height: 0; overflow-y: auto; background: var(--panel);
+  display: flex; align-items: center; justify-content: center; padding: 2rem;
 }
-.mx-slab-card:hover { border-color: var(--trace); }
-.mx-slablist--overlay { position: absolute; bottom: 0; left: 0; right: 0; background: transparent; z-index: 2; }
-.mx-slablist--overlay .mx-slab-card { background: color-mix(in srgb, var(--panel) 75%, transparent); }
+.mx-empty { color: var(--ink-dim); }
+.mx-project-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem; width: 100%; max-width: 880px;
+}
+.mx-project-card {
+  display: flex; flex-direction: column; gap: 0.4rem; align-items: flex-start;
+  padding: 1.25rem; background: var(--panel-2); border: 1px solid var(--rule);
+  border-radius: 3px; cursor: pointer; text-align: left; font: inherit; color: var(--ink);
+  transition: border-color 0.15s ease;
+}
+.mx-project-card:hover { border-color: var(--trace); }
+.mx-project-name { font-family: var(--font-sans); font-weight: 700; font-size: 1.0625rem; }
+.mx-project-slug { color: var(--ink-dim); font-size: 0.75rem; }
+.mx-project-stats { display: flex; gap: 1rem; margin-top: 0.4rem; color: var(--ink-dim); font-size: 0.75rem; }
+.mx-project-stats strong { color: var(--ink); font-weight: 500; }
 
 /* ---- responsive: drill stack under 960px ---- */
 @media (max-width: 959px) {
@@ -148,5 +164,5 @@ textarea.mx-code { min-height: 4rem; }
 .mx-crumb-btn:hover { color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce) {
-  .mx-scene--backdrop { transition: none; }
+  .mx-project-card { transition: none; }
 }

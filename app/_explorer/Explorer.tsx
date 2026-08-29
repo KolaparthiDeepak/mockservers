@@ -5,22 +5,18 @@ import { EndpointList } from "./EndpointList";
 import { CaseList } from "./CaseList";
 import { Runner } from "./Runner";
 import { SignalTrace } from "./SignalTrace";
-
-function lastSeg(path: string): string {
-  const parts = path.split("/").filter(Boolean);
-  return parts[parts.length - 1] ?? path;
-}
+import { commandCode } from "./endpointLabel";
 
 export function Explorer({
   project,
   projects,
   onPickProject,
-  onBackToOrbit,
+  onBack,
 }: {
   project: ProjectVM;
   projects: ProjectVM[];
   onPickProject: (slug: string) => void;
-  onBackToOrbit: () => void;
+  onBack: () => void;
 }) {
   const [endpointKey, setEndpointKey] = useState<string | null>(project.endpoints[0]?.key ?? null);
   const [caseId, setCaseId] = useState<string | null>(null);
@@ -61,8 +57,8 @@ export function Explorer({
             ))}
           </select>
         </label>
-        <button className="mx-btn" onClick={onBackToOrbit}>
-          ⟲ orbit
+        <button className="mx-btn" onClick={onBack}>
+          ← projects
         </button>
       </div>
 
@@ -107,7 +103,7 @@ export function Explorer({
 
         <div className="mx-pane" data-collapsed={stage !== 1 ? "true" : undefined}>
           <div className="mx-pane-head mx-label">
-            Cases{endpoint ? ` · ${endpoint.method} ${lastSeg(endpoint.path)}` : ""}
+            Cases{endpoint ? ` · ${endpoint.summary ?? commandCode(endpoint.path)}` : ""}
           </div>
           {endpoint && (
             <CaseList

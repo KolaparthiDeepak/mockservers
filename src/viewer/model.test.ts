@@ -104,6 +104,34 @@ describe("buildViewModel", () => {
     expect(JSON.parse(c.request.body!)).toEqual({ cardLast4: "0001" });
   });
 
+  it("fills OpenAPI-required request props a case's match rules don't cover", () => {
+    const req = {
+      builtAt: "t", commit: "c", warnings: [],
+      projects: { demo: {
+        name: "Demo", slug: "demo", basePath: "/commands",
+        defaults: { delayMs: 0, cors: true, notFound: { status: 404, body: {} } },
+        routes: [{
+          id: "verify-default", method: "POST", path: "/svc/VERIFY_CUSTOMER/v1",
+          segments: [], response: { status: 200, body: { verified: true } },
+        }],
+        openApiDoc: {
+          openapi: "3.0.3",
+          paths: { "/commands/svc/VERIFY_CUSTOMER/v1": { post: {
+            requestBody: { content: { "application/json": {
+              schema: {
+                type: "object",
+                required: ["customerId", "contactChannel"],
+                properties: { contactChannel: { enum: ["SMS", "EMAIL"] } },
+              },
+            } } },
+          } } },
+        },
+      } },
+    } as unknown as CompiledBundle;
+    const c = buildViewModel(req).projects[0]!.endpoints[0]!.cases[0]!;
+    expect(JSON.parse(c.request.body!)).toEqual({ customerId: "<value>", contactChannel: "SMS" });
+  });
+
   it("flags openapi-generated cases", () => {
     const cases = buildViewModel(bundle).projects[0]!.endpoints[0]!.cases;
     expect(cases[2]).toMatchObject({ id: "openapi:getCard", label: "getCard", isOpenApiGenerated: true });

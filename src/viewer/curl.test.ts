@@ -68,6 +68,25 @@ describe("synthesizeRequest", () => {
     expect(d.headers["content-type"]).toBeUndefined();
   });
 
+  it("fills required schema props absent after the example + match overlay", () => {
+    const d = synthesizeRequest({
+      ...base,
+      match: [{ jsonPath: "$.cardId", equals: "card_1" }],
+      requiredProps: ["cardId", "reason", "customerId"],
+      requestSchemaProps: { reason: { enum: ["LOST_OR_STOLEN"] } },
+    });
+    expect(JSON.parse(d.body!)).toEqual({
+      cardId: "card_1", // already set by the match — not overwritten
+      reason: "LOST_OR_STOLEN", // from schema enum
+      customerId: "<value>", // no hint → placeholder
+    });
+  });
+
+  it("does not fill required props for a bodyless method", () => {
+    const d = synthesizeRequest({ ...base, method: "GET", match: [], requiredProps: ["customerId"] });
+    expect(d.body).toBeUndefined();
+  });
+
   it("renders a deterministic curl string with a $ORIGIN prefix", () => {
     const d = synthesizeRequest({
       ...base,
