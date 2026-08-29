@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "compile": "tsx scripts/compile-cli.ts",
     "postinstall": "tsx scripts/compile-cli.ts || true",
@@ -20,22 +22,22 @@
     "new-project": "node scripts/new-project.mjs"
   },
   "dependencies": {
+    "@apidevtools/swagger-parser": "10.1.1",
     "next": "15.5.24",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "zod": "3.24.1",
     "yaml": "2.7.0",
-    "@apidevtools/swagger-parser": "10.1.1"
+    "zod": "3.24.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.6",
     "@types/node": "22.10.0",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.0",
-    "typescript": "5.7.3",
-    "tsx": "4.19.2",
-    "vitest": "2.1.8",
     "eslint": "9.17.0",
-    "eslint-config-next": "15.5.24"
+    "eslint-config-next": "15.5.24",
+    "tsx": "4.19.2",
+    "typescript": "5.7.3",
+    "vitest": "2.1.8"
   }
 }

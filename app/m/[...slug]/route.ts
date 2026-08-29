@@ -57,7 +57,12 @@ async function handle(req: Request, ctx: { params: Promise<{ slug: string[] }> }
     warns: result.warnings.length,
   }));
 
-  const headers: Record<string, string> = { ...result.headers, ...cors };
+  const headers: Record<string, string> = {
+    ...result.headers,
+    ...cors,
+    "x-mock-rule-id": result.matchedRuleId ?? "",
+    "x-mock-matched": String(result.matchedRuleId !== null),
+  };
   let payload: BodyInit | null;
   if (result.body === null || result.body === undefined) payload = null;
   else if (typeof result.body === "string") payload = result.body;
