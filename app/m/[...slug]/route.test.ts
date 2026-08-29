@@ -64,4 +64,16 @@ describe("mock route", () => {
     expect(res.status).toBe(204);
     expect(res.headers.get("access-control-allow-methods")).toContain("POST");
   });
+  it("exposes the matched rule id and matched flag as response headers", async () => {
+    const res = await call(POST, "https://x/m/demo/commands/verify", {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: "1" }),
+    });
+    expect(res.headers.get("x-mock-rule-id")).toBe("ok");
+    expect(res.headers.get("x-mock-matched")).toBe("true");
+  });
+  it("marks an unmatched request with x-mock-matched: false and an empty rule id", async () => {
+    const res = await call(POST, "https://x/m/demo/commands/nope", { method: "POST", body: "{}" });
+    expect(res.headers.get("x-mock-matched")).toBe("false");
+    expect(res.headers.get("x-mock-rule-id")).toBe("");
+  });
 });
