@@ -97,6 +97,27 @@
     path: /acropolis-card-mgmt/GET_CARD/v1
   response: { status: 200, body: { cardId: "{{request.body.cardId}}", status: BLOCKED } }
 
+# ---- CONFIRM_CARD_STATUS ----
+- id: confirm-status-stale
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/CONFIRM_CARD_STATUS/v1
+    match: [{ jsonPath: $.cardId, equals: card-stale-confirm }]
+  response: { status: 200, body: { cardId: card-stale-confirm, status: ACTIVE } }
+
+- id: confirm-status-not-found
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/CONFIRM_CARD_STATUS/v1
+    match: [{ jsonPath: $.cardId, equals: card-0001 }]
+  response: { status: 404, body: { reason: CARD_NOT_FOUND } }
+
+- id: confirm-status-default
+  request:
+    method: POST
+    path: /acropolis-card-mgmt/CONFIRM_CARD_STATUS/v1
+  response: { status: 200, body: { cardId: "{{request.body.cardId}}", status: BLOCKED, confirmedAt: "{{now}}" } }
+
 # ---- CHECK_CARD_ELIGIBILITY ----
 - id: eligibility-already-blocked
   request:
