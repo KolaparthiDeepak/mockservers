@@ -11,6 +11,10 @@ describe("projectYamlSchema", () => {
   it("rejects an unknown top-level key", () => {
     expect(() => projectYamlSchema.parse({ name: "X", slug: "x", nope: 1 })).toThrow();
   });
+  it("normalizes a trailing-slash basePath", () => {
+    expect(projectYamlSchema.parse({ name: "X", slug: "x", basePath: "/api/" }).basePath).toBe("/api");
+    expect(projectYamlSchema.parse({ name: "X", slug: "x", basePath: "/" }).basePath).toBe("/");
+  });
 });
 
 describe("ruleFileSchema", () => {
@@ -34,5 +38,19 @@ describe("ruleFileSchema", () => {
     expect(() => ruleFileSchema.parse([{
       id: "a", request: { method: "GET", path: "/x", match: [{ equals: "1" }] }, response: { status: 200 },
     }])).toThrow();
+  });
+  it("rejects a path where ** is not the last segment", () => {
+    expect(() => ruleFileSchema.parse([{
+      id: "a", request: { method: "GET", path: "/x/**/y" }, response: { status: 200 },
+    }])).toThrow(/\*\* must be the last path segment/);
+    expect(() => ruleFileSchema.parse([{
+      id: "a", request: { method: "GET", path: "/x/**" }, response: { status: 200 },
+    }])).not.toThrow();
+  });
+  it("rejects a non-string regex operand", () => {
+    expect(() => ruleFileSchema.parse([{
+      id: "a", request: { method: "GET", path: "/x", match: [{ jsonPath: "$.a", regex: 5 }] },
+      response: { status: 200 },
+    }])).toThrow(/regex must be a string/);
   });
 });

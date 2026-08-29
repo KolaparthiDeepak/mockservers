@@ -25,7 +25,7 @@ function exampleBody(responseObj: Record<string, unknown>): { body: unknown; has
       const first = Object.values(media.examples)[0];
       if (first && "value" in first) return { body: first.value ?? null, hasExample: true };
     }
-    if ("example" in media) return { body: media.example ?? null, hasExample: true };
+    if ("example" in media && media.example != null) return { body: media.example, hasExample: true };
   }
   return { body: null, hasExample: false };
 }

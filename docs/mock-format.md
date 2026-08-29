@@ -33,8 +33,11 @@ defaults:
     body: { reason: UNKNOWN_ROUTE }
 ```
 
-- `slug`: `^[a-z0-9][a-z0-9-]{0,62}$`. Duplicate slug across directories → build error.
+- `slug`: `^[a-z0-9][a-z0-9-]{0,62}$`, and MUST equal the directory name (mismatch → build error).
 - `basePath`: if set, a request to `/m/<slug>/commands/x/y` matches a route with `path: /x/y`.
+  A trailing slash is normalized away (`/api/` → `/api`).
+- `cors: false`: no CORS headers, and `OPTIONS` requests fall through to normal matching
+  (so they typically hit the `notFound` default, i.e. `404`).
 
 ---
 
@@ -80,13 +83,18 @@ Each item in a `match` array is one of:
 | Field | Operators | Target |
 | --- | --- | --- |
 | `jsonPath: $.a.b` | `equals`, `notEquals`, `contains`, `regex`, `exists: true\|false` | request JSON body |
-| `header: x-foo` | `equals`, `regex`, `exists` | request header (case-insensitive) |
-| `query: page` | `equals`, `regex`, `exists` | request query string |
+| `header: x-foo` | `equals`, `notEquals`, `contains`, `regex`, `exists: true\|false` | request header (case-insensitive) |
+| `query: page` | `equals`, `notEquals`, `contains`, `regex`, `exists: true\|false` | request query string |
+
+The engine applies all five operators uniformly to every target.
 
 `equals` compares as strings after JSON-stringifying non-string targets. `regex` is
 JavaScript `RegExp`, anchored by the author if needed, compiled at build time (invalid regex
 → build error). All conditions in a `match` array must pass (AND). **To express OR, write two
 rules.**
+
+`notEquals`, `contains`, and `regex` evaluate to **false** when the target is absent
+(fail-closed). To assert that a field is missing, use `exists: false`.
 
 ### Response `body`
 
@@ -147,6 +155,7 @@ a generated fallback for the same path is the normal pattern.
 - OpenAPI operation with no example → WARNING.
 - A project directory with no `project.yaml` → ERROR.
 - `slug` != directory name → ERROR.
+- The same rule `id` used twice within a project → ERROR.
 
 ---
 

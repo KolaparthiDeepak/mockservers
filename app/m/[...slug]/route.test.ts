@@ -13,6 +13,7 @@ vi.mock("@/mocks.generated.json", () => ({
           match: [{ jsonPath: "$.id", equals: "1" }],
           response: { status: 200, body: { verified: true } },
         }],
+        openApiDoc: { openapi: "3.0.3", info: { title: "Demo", version: "1" } },
       },
     },
   },
@@ -48,6 +49,15 @@ describe("mock route", () => {
     const res = await call(GET, "https://x/m/ghost/x");
     expect(res.status).toBe(404);
     expect(await res.json()).toMatchObject({ error: "unknown project", slug: "ghost" });
+  });
+  it("serves the OpenAPI doc on GET /<slug>/__spec but not on POST", async () => {
+    const ok = await call(GET, "https://x/m/demo/__spec");
+    expect(ok.status).toBe(200);
+    expect(await ok.json()).toMatchObject({ openapi: "3.0.3" });
+
+    const post = await call(POST, "https://x/m/demo/__spec", { method: "POST", body: "{}" });
+    expect(post.status).toBe(404);
+    expect(await post.json()).toEqual({ reason: "UNKNOWN_ROUTE" });
   });
   it("answers an OPTIONS preflight with 204", async () => {
     const res = await call(OPTIONS, "https://x/m/demo/commands/verify", { method: "OPTIONS" });

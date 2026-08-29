@@ -1,0 +1,4 @@
+name: Svc
+slug: svc
+defaults:
+  notFound: { status: 404, body: { reason: UNKNOWN_ROUTE } }

@@ -1,0 +1,6 @@
+openapi: 3.0.3
+info: { title: Broken }
+paths:
+  /x:
+    get:
+      responses: "not-an-object"

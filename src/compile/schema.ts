@@ -14,7 +14,11 @@ export const projectYamlSchema = z
   .object({
     name: z.string().min(1),
     slug: z.string().regex(slugRe, "slug must match ^[a-z0-9][a-z0-9-]{0,62}$"),
-    basePath: z.string().startsWith("/").optional(),
+    basePath: z
+      .string()
+      .startsWith("/")
+      .transform((s) => (s.endsWith("/") && s.length > 1 ? s.slice(0, -1) : s))
+      .optional(),
     defaults: z
       .object({
         delayMs: z.number().int().min(0).max(9000).optional(),
@@ -34,11 +38,16 @@ const matchConditionSchema = z.record(z.unknown()).superRefine((obj, ctx) => {
   const ops = OP_KEYS.filter((k) => k in obj);
   if (targets.length !== 1) ctx.addIssue({ code: "custom", message: `exactly one of ${TARGET_KEYS.join("/")} required` });
   if (ops.length !== 1) ctx.addIssue({ code: "custom", message: `exactly one of ${OP_KEYS.join("/")} required` });
-  const extra = Object.keys(obj).filter((k) => !TARGET_KEYS.includes(k as never) && !OP_KEYS.includes(k as never));
+  const known = [...TARGET_KEYS, ...OP_KEYS] as string[];
+  const extra = Object.keys(obj).filter((k) => !known.includes(k));
   if (extra.length) ctx.addIssue({ code: "custom", message: `unknown key(s): ${extra.join(", ")}` });
   if ("regex" in obj) {
-    try { new RegExp(String(obj.regex)); }
-    catch { ctx.addIssue({ code: "custom", message: `invalid regex: ${String(obj.regex)}` }); }
+    if (typeof obj.regex !== "string") {
+      ctx.addIssue({ code: "custom", message: "regex must be a string" });
+    } else {
+      try { new RegExp(obj.regex); }
+      catch { ctx.addIssue({ code: "custom", message: `invalid regex: ${obj.regex}` }); }
+    }
   }
   if ("exists" in obj && typeof obj.exists !== "boolean") {
     ctx.addIssue({ code: "custom", message: "exists must be a boolean" });
@@ -52,7 +61,17 @@ export const ruleSchema = z
     request: z
       .object({
         method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE", "*"]),
-        path: z.string().startsWith("/", "path must start with /"),
+        path: z
+          .string()
+          .startsWith("/", "path must start with /")
+          .refine(
+            (p) => {
+              const segs = p.split("/").filter((s) => s.length > 0);
+              const i = segs.indexOf("**");
+              return i === -1 || i === segs.length - 1;
+            },
+            "** must be the last path segment",
+          ),
         match: z.array(matchConditionSchema).optional(),
       })
       .strict(),
