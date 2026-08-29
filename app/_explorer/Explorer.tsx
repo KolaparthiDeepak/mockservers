@@ -5,6 +5,7 @@ import { EndpointList } from "./EndpointList";
 import { CaseList } from "./CaseList";
 import { Runner } from "./Runner";
 import { SignalTrace } from "./SignalTrace";
+import { ThemeToggle } from "./ThemeToggle";
 import { commandCode } from "./endpointLabel";
 
 export function Explorer({
@@ -37,29 +38,38 @@ export function Explorer({
   return (
     <>
       <div className="mx-topbar">
-        <span className="mx-wordmark">MOCKSERVERS</span>
-        <label className="mx-label">
-          project{" "}
-          <select
-            value={project.slug}
-            onChange={(e) => onPickProject(e.target.value)}
-            style={{
-              background: "var(--panel-2)",
-              color: "var(--ink)",
-              border: "1px solid var(--rule)",
-              fontFamily: "var(--font-mono)",
-            }}
-          >
-            {projects.map((p) => (
-              <option key={p.slug} value={p.slug}>
-                {p.slug}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button className="mx-btn" onClick={onBack}>
-          ← projects
+        <button
+          className="mx-wordmark mx-wordmark-btn"
+          onClick={onBack}
+          title="Back to projects"
+        >
+          MOCKSERVERS
         </button>
+        <div className="mx-topbar-right">
+          <label className="mx-label">
+            project{" "}
+            <select
+              value={project.slug}
+              onChange={(e) => onPickProject(e.target.value)}
+              style={{
+                background: "var(--panel-2)",
+                color: "var(--ink)",
+                border: "1px solid var(--rule)",
+                fontFamily: "var(--font-mono)",
+              }}
+            >
+              {projects.map((p) => (
+                <option key={p.slug} value={p.slug}>
+                  {p.slug}
+                </option>
+              ))}
+            </select>
+          </label>
+          <ThemeToggle />
+          <button className="mx-btn" onClick={onBack}>
+            ← projects
+          </button>
+        </div>
       </div>
 
       <div className="mx-crumbs">

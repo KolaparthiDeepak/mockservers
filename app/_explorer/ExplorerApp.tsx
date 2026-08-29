@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { ViewModel } from "@/src/viewer/model";
 import { Explorer } from "./Explorer";
 import { SlabList } from "./SlabList";
+import { ThemeToggle } from "./ThemeToggle";
 
 export default function ExplorerApp({ model }: { model: ViewModel }) {
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
@@ -22,10 +23,13 @@ export default function ExplorerApp({ model }: { model: ViewModel }) {
         <>
           <div className="mx-topbar">
             <span className="mx-wordmark">MOCKSERVERS</span>
-            <span className="mx-build">
-              build {model.build.commit} · {n} project{n === 1 ? "" : "s"}
-              {model.build.warnings.length > 0 && ` · ${model.build.warnings.length} warning(s)`}
-            </span>
+            <div className="mx-topbar-right">
+              <span className="mx-build">
+                build {model.build.commit} · {n} project{n === 1 ? "" : "s"}
+                {model.build.warnings.length > 0 && ` · ${model.build.warnings.length} warning(s)`}
+              </span>
+              <ThemeToggle />
+            </div>
           </div>
           <SlabList projects={model.projects} onSelect={setSelectedSlug} />
         </>
