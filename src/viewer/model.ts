@@ -56,9 +56,13 @@ function jsonMediaType(op: OaOperation | undefined): OaMediaType | undefined {
 
 function requestExample(mt: OaMediaType | undefined): Record<string, unknown> | undefined {
   if (!mt) return undefined;
-  if (mt.example && typeof mt.example === "object") return mt.example as Record<string, unknown>;
+  if (mt.example && typeof mt.example === "object" && !Array.isArray(mt.example)) {
+    return mt.example as Record<string, unknown>;
+  }
   const first = mt.examples ? Object.values(mt.examples)[0]?.value : undefined;
-  return first && typeof first === "object" ? (first as Record<string, unknown>) : undefined;
+  return first && typeof first === "object" && !Array.isArray(first)
+    ? (first as Record<string, unknown>)
+    : undefined;
 }
 
 function schemaProps(mt: OaMediaType | undefined): Record<string, SchemaProp> | undefined {

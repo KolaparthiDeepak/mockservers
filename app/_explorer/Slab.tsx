@@ -71,7 +71,7 @@ export function Slab({
         anchorY="middle"
         color="#8A8177"
       >
-        {`${project.endpoints.length} ENDPOINTS · ${project.caseCount} CASES`}
+        {`${project.endpoints.length} ENDPOINTS / ${project.caseCount} CASES`}
       </Text>
       <mesh position={[-0.5, -0.82, 0.1]}>
         <planeGeometry args={[0.05, 0.05]} />

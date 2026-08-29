@@ -67,11 +67,26 @@ export function Explorer({
       </div>
 
       <div className="mx-crumbs">
-        <span>{project.slug}</span>
+        <button
+          className="mx-crumb-btn"
+          onClick={() => {
+            setEndpointKey(null);
+            setCaseId(null);
+            setCaseEl(null);
+          }}
+        >
+          {project.slug}
+        </button>
         {endpoint && (
-          <span>
+          <button
+            className="mx-crumb-btn"
+            onClick={() => {
+              setCaseId(null);
+              setCaseEl(null);
+            }}
+          >
             › {endpoint.method} {endpoint.path}
-          </span>
+          </button>
         )}
         {activeCase && <span>› {activeCase.label}</span>}
       </div>

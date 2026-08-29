@@ -79,6 +79,31 @@ describe("buildViewModel", () => {
     expect(JSON.parse(ep.cases[0]!.request.body!)).toEqual({ customerId: "cust_1", cardLast4: "0001" });
   });
 
+  it("ignores an array-shaped OpenAPI example, still applying the match overlay", () => {
+    const arrExample = {
+      builtAt: "t", commit: "c", warnings: [],
+      projects: { demo: {
+        name: "Demo", slug: "demo", basePath: "/commands",
+        defaults: { delayMs: 0, cors: true, notFound: { status: 404, body: {} } },
+        routes: [{
+          id: "not-found", method: "POST", path: "/svc/GET_CARD/v1",
+          segments: [], match: [{ jsonPath: "$.cardLast4", equals: "0001" }],
+          response: { status: 404, body: { reason: "CARD_NOT_FOUND" } },
+        }],
+        openApiDoc: {
+          openapi: "3.0.3",
+          paths: { "/commands/svc/GET_CARD/v1": { post: {
+            requestBody: { content: { "application/json": {
+              examples: { bad: { value: [{ cardLast4: "4242" }] } },
+            } } },
+          } } },
+        },
+      } },
+    } as unknown as CompiledBundle;
+    const c = buildViewModel(arrExample).projects[0]!.endpoints[0]!.cases[0]!;
+    expect(JSON.parse(c.request.body!)).toEqual({ cardLast4: "0001" });
+  });
+
   it("flags openapi-generated cases", () => {
     const cases = buildViewModel(bundle).projects[0]!.endpoints[0]!.cases;
     expect(cases[2]).toMatchObject({ id: "openapi:getCard", label: "getCard", isOpenApiGenerated: true });

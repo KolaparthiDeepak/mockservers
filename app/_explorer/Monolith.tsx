@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
@@ -28,6 +28,9 @@ function CameraRig({
   const controls = useRef<OrbitControlsImpl>(null);
   const desired = useMemo(() => new THREE.Vector3(), []);
   const lookAt = useMemo(() => new THREE.Vector3(), []);
+  const settled = useRef(false);
+
+  useEffect(() => { settled.current = false; }, [activeIndex]);
 
   useFrame((_, dt) => {
     const k = 1 - Math.pow(0.001, dt);
@@ -39,11 +42,13 @@ function CameraRig({
       desired.set(0, 1.5, 7);
       lookAt.set(0, 0, 0);
     }
-    camera.position.lerp(desired, k);
-    if (controls.current) {
-      controls.current.target.lerp(lookAt, k);
-      controls.current.update();
+    if (!settled.current) {
+      camera.position.lerp(desired, k);
+      controls.current?.target.lerp(lookAt, k);
+      if (camera.position.distanceTo(desired) < 0.05) settled.current = true;
     }
+    // enableDamping needs update() every frame; camera-position lerp must not.
+    controls.current?.update();
   });
 
   return (
@@ -51,6 +56,8 @@ function CameraRig({
       ref={controls}
       enablePan={false}
       enableZoom={false}
+      enableDamping
+      dampingFactor={0.08}
       autoRotate={activeIndex < 0}
       autoRotateSpeed={0.6}
       minPolarAngle={Math.PI / 3}

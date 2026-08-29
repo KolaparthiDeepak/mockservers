@@ -123,7 +123,7 @@ textarea.mx-code { min-height: 4rem; }
 /* ---- monolith scene ---- */
 .mx-scene { position: absolute; inset: 0; z-index: 0; }
 .mx-scene--backdrop { opacity: 0.15; transition: opacity 0.6s ease; pointer-events: none; }
-.mx-app > :not(.mx-scene) { position: relative; z-index: 1; }
+.mx-app > :not(.mx-scene, .mx-trace-layer, .mx-slablist--overlay) { position: relative; z-index: 1; }
 
 /* ---- slab list fallback / orbit-phase keyboard list ---- */
 .mx-slablist { display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 2rem; align-content: flex-start; }
@@ -144,6 +144,8 @@ textarea.mx-code { min-height: 4rem; }
   .mx-crumbs { display: flex; gap: 0.4rem; padding: 0.5rem 1rem; border-bottom: 1px solid var(--rule); color: var(--ink-dim); flex-wrap: wrap; }
 }
 @media (min-width: 960px) { .mx-crumbs { display: none; } }
+.mx-crumb-btn { background: none; border: 0; color: inherit; font: inherit; cursor: pointer; padding: 0; }
+.mx-crumb-btn:hover { color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce) {
   .mx-scene--backdrop { transition: none; }
